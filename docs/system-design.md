@@ -158,6 +158,26 @@ Single role in v1. Admin/staff separation is deferred.
 
 **Tracking code is the security boundary.** With no customer login, a guessable code would expose other customers' orders. The code is random and long enough to be effectively unguessable (nanoid-style), never sequential.
 
+## Deployment target
+
+Production runs on AWS, using the container/VM path rather than serverless so that long-lived SSE connections are supported.
+
+| Component | AWS service |
+|---|---|
+| NestJS servers | ECS/Fargate (or EC2) behind an Application Load Balancer |
+| PostgreSQL | RDS |
+| Redis | ElastiCache |
+| Load balancer | ALB (supports long-lived SSE connections) |
+
+API Gateway + Lambda is explicitly avoided for the request path: Lambda's execution limits and response buffering do not suit long-open SSE streams.
+
+Three constraints shape the build from day one, even though deployment happens after v1 runs locally:
+- The host must support long-lived connections (ALB does); serverless request paths are ruled out for SSE.
+- PostgreSQL and Redis exist as managed services (RDS, ElastiCache); the app reaches them only through environment variables.
+- Running multiple servers behind the ALB makes Redis Pub/Sub mandatory — a customer's SSE connection and the staff request that triggers an update may land on different servers.
+
+Detailed deployment work (Docker images, CI/CD, VPC, security groups, domain, TLS) is carried out once v1 works end to end.
+
 ## Deferred to later versions
 
 Payments · live map / GPS · customer accounts · multiple shops · SMS/email notifications · ratings and reviews · Outbox pattern + dedicated message broker · admin/staff roles.
