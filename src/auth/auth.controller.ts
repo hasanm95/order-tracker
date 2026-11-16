@@ -9,7 +9,7 @@ import { LoginDto, SignUpDto } from "./auth.dto.js";
 export class AuthController {
     @Post("signup")
     async signUp(@Body() dto: SignUpDto) {
-        console.log(dto)
+        console.log("===> signup", dto)
     }
 
     @Post("login")
