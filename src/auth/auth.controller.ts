@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from "@nestjs/common";
 import { LoginDto, SignUpDto } from "./auth.dto.js";
+import { AuthService } from "./auth.service.js";
 
 
 @Controller({
@@ -7,9 +8,12 @@ import { LoginDto, SignUpDto } from "./auth.dto.js";
     version: '1'
 })
 export class AuthController {
+
+    constructor(private authService: AuthService) {}
+
     @Post("signup")
     async signUp(@Body() dto: SignUpDto) {
-        console.log("===> signup", dto)
+       return this.authService.signUp(dto)
     }
 
     @Post("login")
