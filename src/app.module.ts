@@ -3,6 +3,7 @@ import { AuthenticationModule } from '@nestjs/authentication';
 import { DrizzleModule } from '@nestjs/drizzle';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { AuthModule } from './auth/auth.module.js';
+import { RedisModule } from './redis/redis.module.js';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { AuthModule } from './auth/auth.module.js';
     DrizzleModule.forRoot({
       drizzle,
       connection: process.env.DATABASE_URL!,
-    })
+    }),
+    RedisModule
   ],
   controllers: [],
   providers: [],
