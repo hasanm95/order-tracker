@@ -1,7 +1,8 @@
-import { Body, Controller, Post, UnauthorizedException } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Post, UnauthorizedException } from "@nestjs/common";
 import { LoginDto, SignUpDto } from "./auth.dto.js";
 import { CredentialsService } from "./credentials.service.js";
-import { Public, TokenService } from "@nestjs/authentication";
+import { CurrentUser, Public, TokenService } from "@nestjs/authentication";
+import type { User } from "../users/user.js";
 
 
 @Controller({
@@ -24,6 +25,7 @@ export class AuthController {
 
     @Public()
     @Post("login")
+    @HttpCode(200)
     async login(@Body() dto: LoginDto) {
         const user = await this.credentialsService.verify(dto.email, dto.password)
         if (!user) {
@@ -31,5 +33,17 @@ export class AuthController {
         }
 
         return this.tokenService.issue(user.id, { method: "password" })
+    }
+
+    @Public()
+    @Post("refresh")
+    @HttpCode(200)
+    refresh(@Body('refreshToken') refreshToken: string){
+        return this.tokenService.refresh(refreshToken)
+    }
+
+    @Get("me")
+    me(@CurrentUser() user: User) {
+        return user
     }
 }

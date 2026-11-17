@@ -12,6 +12,10 @@ import { AuthenticationModule } from '@nestjs/authentication';
           audience: "my-app",
           ttl: "15m"
         },
+        refreshToken: {
+          ttl: "30d",
+          absoluteTtl: "90d"
+        }
       })
     }),
     AuthModule
