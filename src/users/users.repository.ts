@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { User } from "./user.js";
-import { randomUUID } from "node:crypto";
+import { InjectDrizzle } from "@nestjs/drizzle";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { users } from "../db/schema.js";
 
 interface UserRow extends User {
     passwordHash: string
@@ -8,13 +10,15 @@ interface UserRow extends User {
 
 @Injectable()
 export class UsersRepository {
+    constructor(@InjectDrizzle() private readonly db: NodePgDatabase){}
+
     private readonly rows = new Map<string, UserRow>();
 
     async create(email: string, passwordHash: string): Promise<User> {
         const normalized = email.trim().toLowerCase();
-        const row: UserRow = { id: randomUUID(), email: normalized, passwordHash };
-        this.rows.set(row.id, row);
-        return { id: row.id, email: row.email };
+        const [row] = await this.db.insert(users).values({ email: normalized, passwordHash }).returning({ id: users.id, email: users.email });
+        console.log("====> row", row)
+        return row;
     }
 
     async findByEmail(email: string): Promise<User | null> {

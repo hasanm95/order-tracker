@@ -6,7 +6,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
       - PORT=3000
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
       - REDIS_ADDR=redis:6379
