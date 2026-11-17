@@ -22,4 +22,10 @@ export class UsersRepository {
         const row = [...this.rows.values()].find((r) => r.email === normalized);
         return row ? { id: row.id, email: row.email } : null;
     }
+
+
+    async findById(id: string): Promise<User | null> {
+        const row = this.rows.get(id);
+        return row ? { id: row.id, email: row.email } : null;
+    }
 }
