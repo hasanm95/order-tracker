@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module.js';
 import { AuthenticationModule } from '@nestjs/authentication';
+import { DrizzleModule } from '@nestjs/drizzle';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { AuthModule } from './auth/auth.module.js';
 
 @Module({
   imports: [
@@ -18,7 +20,11 @@ import { AuthenticationModule } from '@nestjs/authentication';
         }
       })
     }),
-    AuthModule
+    AuthModule,
+    DrizzleModule.forRoot({
+      drizzle,
+      connection: process.env.DATABASE_URL!,
+    })
   ],
   controllers: [],
   providers: [],

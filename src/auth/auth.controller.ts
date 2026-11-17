@@ -31,7 +31,6 @@ export class AuthController {
         if (!user) {
             throw new UnauthorizedException("Invalid email or password")
         }
-
         return this.tokenService.issue(user.id, { method: "password" })
     }
 
