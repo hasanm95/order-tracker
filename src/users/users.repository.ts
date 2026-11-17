@@ -28,4 +28,10 @@ export class UsersRepository {
         const row = this.rows.get(id);
         return row ? { id: row.id, email: row.email } : null;
     }
+
+    async findCredentials(email: string): Promise<{ user: User; passwordHash: string } | null> {
+        const normalized = email.trim().toLowerCase();
+        const row = [...this.rows.values()].find((r) => r.email === normalized);
+        return row ? { user: { id: row.id, email: row.email }, passwordHash: row.passwordHash } : null;
+    }
 }

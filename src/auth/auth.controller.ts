@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Post, UnauthorizedException } from "@nestjs/common";
 import { LoginDto, SignUpDto } from "./auth.dto.js";
 import { CredentialsService } from "./credentials.service.js";
 import { Public, TokenService } from "@nestjs/authentication";
@@ -22,8 +22,14 @@ export class AuthController {
        return this.tokenService.issue(user.id, {method: "password"})
     }
 
+    @Public()
     @Post("login")
     async login(@Body() dto: LoginDto) {
-        console.log("login =====> ",dto)
+        const user = await this.credentialsService.verify(dto.email, dto.password)
+        if (!user) {
+            throw new UnauthorizedException("Invalid email or password")
+        }
+
+        return this.tokenService.issue(user.id, { method: "password" })
     }
 }
