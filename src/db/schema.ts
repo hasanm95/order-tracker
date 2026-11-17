@@ -16,7 +16,7 @@ export const refreshTokens = pgTable("refresh_tokens", {
     familyExpiresAt: timestamp('family_expires_at', { withTimezone: true }).notNull(),
     usedAt: timestamp('used_at', { withTimezone: true }),
     revoked: boolean('revoked').default(false).notNull(),
-    claims: jsonb('claims'),
+    claims: jsonb('claims').$type<Record<string, unknown>>(),
 })
 
 export type User = typeof users.$inferInsert
