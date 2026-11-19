@@ -4,6 +4,7 @@ import { DrizzleModule } from '@nestjs/drizzle';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { AuthModule } from './auth/auth.module.js';
 import { RedisModule } from './redis/redis.module.js';
+import { OrdersModule } from './orders/orders.module.js';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { RedisModule } from './redis/redis.module.js';
       drizzle,
       connection: process.env.DATABASE_URL!,
     }),
-    RedisModule
+    RedisModule,
+    OrdersModule
   ],
   controllers: [],
   providers: [],
