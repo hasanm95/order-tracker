@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { AuthenticationModule } from '@nestjs/authentication';
 import { DrizzleModule } from '@nestjs/drizzle';
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module.js';
 import { RedisModule } from './redis/redis.module.js';
 import { OrdersModule } from './orders/orders.module.js';
@@ -10,6 +12,9 @@ import { TrackModule } from './track/track.module.js';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      throttlers: [{ttl: 60000, limit: 10 }]
+    }),
     AuthenticationModule.forRootAsync({
       useFactory: () => ({
         accessToken: {
@@ -35,6 +40,6 @@ import { TrackModule } from './track/track.module.js';
     TrackModule
   ],
   controllers: [],
-  providers: [],
+  providers: [{provide: APP_GUARD, useClass: ThrottlerGuard}],
 })
 export class AppModule {}
