@@ -1,5 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { CreateOrderDto } from './dto/create-order.dto.js';
+import { Body, Controller, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { CreateOrderDto } from './dto/order.dto.js';
 import { CurrentUser } from '@nestjs/authentication';
 import { OrdersService } from './orders.service.js';
 import type { User } from '../db/schema.js';
@@ -22,5 +22,13 @@ export class OrdersController {
             createdBy: user.email
         })
         return createdOrder
+    }
+
+    @Patch(":id/status")
+    async updateStatus(
+        @CurrentUser() user: User, 
+        @Param("id", ParseUUIDPipe) id: string, 
+    ){
+        return this.ordersService.updateOrderStatus(id, user.email)
     }
 }
