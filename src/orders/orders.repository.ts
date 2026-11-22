@@ -55,7 +55,7 @@ export class OrdersRepository {
             .from(orders)
             .leftJoin(statusHistory, eq(statusHistory.orderId, orders.id))
             .where(eq(orders.id, orderId))
-            .orderBy(desc(statusHistory.createdAt))
+            .orderBy(desc(statusHistory.changedAt))
             .limit(1)
 
         return result;
