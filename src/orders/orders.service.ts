@@ -10,6 +10,11 @@ const ALLOWED_TRANSITIONS: Partial<Record<OrderStatus, OrderStatus>> = {
     [OrderStatus.ON_THE_WAY]: OrderStatus.DELIVERED,
 }
 
+const TERMINCAL_STATES = new Set<OrderStatus>([
+    OrderStatus.DELIVERED,
+    OrderStatus.CANCELLED
+])
+
 @Injectable()
 export class OrdersService {
     constructor(private readonly ordersRepository: OrdersRepository){}
@@ -37,7 +42,22 @@ export class OrdersService {
         }
 
         const updatedStaus = await this.ordersRepository.updateOrderStatus(id, allowedNext, changed_by)
-        console.log({updatedStaus})
+        return updatedStaus
+    }
+
+    async cancelOrder(id: string, changed_by: string) {
+        const order = await this.ordersRepository.getOrderStatus(id)
+        
+        if (!order) {
+            throw new NotFoundException(`Order ${id} not found`)
+        }
+
+        const currentStatus = order.status ?? OrderStatus.PLACED
+        if (TERMINCAL_STATES.has(currentStatus)) {
+            throw new BadRequestException(`Order already ${currentStatus}`)
+        }
+
+        const updatedStaus = await this.ordersRepository.updateOrderStatus(id, OrderStatus.CANCELLED, changed_by)
         return updatedStaus
     }
 

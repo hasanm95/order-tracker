@@ -31,4 +31,12 @@ export class OrdersController {
     ){
         return this.ordersService.updateOrderStatus(id, user.email)
     }
+
+    @Patch(":id/cancel")
+    async cancelOrder(
+        @CurrentUser() user: User, 
+        @Param("id", ParseUUIDPipe) id: string, 
+    ){
+        return this.ordersService.cancelOrder(id, user.email)
+    }
 }
