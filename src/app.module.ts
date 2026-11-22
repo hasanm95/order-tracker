@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { RedisModule } from './redis/redis.module.js';
 import { OrdersModule } from './orders/orders.module.js';
 import { relations } from "./db/relations.js"
+import { TrackModule } from './track/track.module.js';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { relations } from "./db/relations.js"
       relations
     }),
     RedisModule,
-    OrdersModule
+    OrdersModule,
+    TrackModule
   ],
   controllers: [],
   providers: [],
