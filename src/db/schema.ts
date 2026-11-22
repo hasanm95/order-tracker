@@ -30,15 +30,15 @@ export const orders = pgTable("orders", {
     createdAt: timestamp("created_at", {withTimezone: true}).defaultNow().notNull()
 })
 
-// export const statusEnum = pgEnum("status", ["Placed", "Packed", "On the way", "Delivered", "Cancelled"])
+export const statusEnum = pgEnum("status", ["Placed", "Packed", "On the way", "Delivered", "Cancelled"])
 
-// export const statusHistory = pgTable("status_history", {
-//     id: uuid("id").defaultRandom().primaryKey(),
-//     orderId: uuid("order_id").notNull().references(() => orders.id, { onDelete: "cascade" }),
-//     status: statusEnum("status").default("Placed"),
-//     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-//     changedBy: text("changed_by").notNull()
-// })
+export const statusHistory = pgTable("status_history", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    orderId: uuid("order_id").notNull().references(() => orders.id, { onDelete: "cascade" }),
+    status: statusEnum("status").default("Placed"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    changedBy: text("changed_by").notNull()
+})
 
 export type User = typeof users.$inferInsert
 export type Order = Omit<typeof orders.$inferInsert, "id" | "createdAt">

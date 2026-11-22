@@ -5,6 +5,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { AuthModule } from './auth/auth.module.js';
 import { RedisModule } from './redis/redis.module.js';
 import { OrdersModule } from './orders/orders.module.js';
+import { relations } from "./db/relations.js"
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { OrdersModule } from './orders/orders.module.js';
     DrizzleModule.forRoot({
       drizzle,
       connection: process.env.DATABASE_URL!,
+      relations
     }),
     RedisModule,
     OrdersModule
