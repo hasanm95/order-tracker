@@ -47,7 +47,7 @@ export const statusHistory = pgTable("status_history", {
     id: uuid("id").defaultRandom().primaryKey(),
     orderId: uuid("order_id").notNull().references(() => orders.id, { onDelete: "cascade" }),
     status: statusEnum("status").default(OrderStatus.PLACED).notNull(),
-    changedAt: timestamp("changed_at", { withTimezone: true }).defaultNow(),
+    changedAt: timestamp("changed_at", { withTimezone: true }).defaultNow().notNull(),
     changedBy: text("changed_by").notNull()
 })
 

@@ -41,7 +41,7 @@ export class OrdersService {
             throw new BadRequestException(`Cannot transition order from "${currentStatus}"`)
         }
 
-        const updatedStaus = await this.ordersRepository.updateOrderStatus(id, allowedNext, changed_by)
+        const updatedStaus = await this.ordersRepository.updateOrderStatus(id, order.trackingCode, allowedNext, changed_by)
         return updatedStaus
     }
 
@@ -57,7 +57,7 @@ export class OrdersService {
             throw new BadRequestException(`Order already ${currentStatus}`)
         }
 
-        const updatedStaus = await this.ordersRepository.updateOrderStatus(id, OrderStatus.CANCELLED, changed_by)
+        const updatedStaus = await this.ordersRepository.updateOrderStatus(id, order.trackingCode, OrderStatus.CANCELLED, changed_by)
         return updatedStaus
     }
 

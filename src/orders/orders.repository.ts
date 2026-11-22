@@ -4,10 +4,14 @@ import { InjectDrizzle } from "@nestjs/drizzle";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { desc, eq } from "drizzle-orm";
 import { CreateOrder } from "./orders.types.js";
+import { RedisPubSubService } from "../redis/redis-pubsub.service.js";
 
 @Injectable()
 export class OrdersRepository {
-    constructor(@InjectDrizzle() private readonly db: NodePgDatabase){}
+    constructor(
+        @InjectDrizzle() private readonly db: NodePgDatabase,
+        private readonly redisPubSub: RedisPubSubService
+    ){}
 
     async create(data: CreateOrder) {
         return await this.db.transaction(async (tx) => {
@@ -34,7 +38,7 @@ export class OrdersRepository {
         })
     }
 
-    async updateOrderStatus(orderId: string, status: OrderStatus, changedBy: string){
+    async updateOrderStatus(orderId: string, trackingCode: string, status: OrderStatus, changedBy: string){
         const [historyEntry] = await this.db.insert(statusHistory)
             .values({
                 orderId, 
@@ -43,6 +47,12 @@ export class OrdersRepository {
             })
             .returning()
 
+        this.redisPubSub.publishOrderStatus({
+            trackingCode,
+            status: historyEntry.status,
+            changedAt: historyEntry.changedAt.toISOString()
+        })
+
         return historyEntry;
     }
 
@@ -50,7 +60,8 @@ export class OrdersRepository {
         const [result] = await this.db
             .select({
                 id: orders.id,
-                status: statusHistory.status
+                status: statusHistory.status,
+                trackingCode: orders.trackingCode
             })
             .from(orders)
             .leftJoin(statusHistory, eq(statusHistory.orderId, orders.id))

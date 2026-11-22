@@ -1,8 +1,7 @@
 import { Global, Inject, Module, OnApplicationShutdown } from '@nestjs/common';
 import { Redis } from 'ioredis';
-
-export const REDIS_CLIENT = 'REDIS_CLIENT';
-export const REDIS_SUBSCRIBER = 'REDIS_SUBSCRIBER';
+import { RedisPubSubService } from './redis-pubsub.service.js';
+import { REDIS_CLIENT, REDIS_SUBSCRIBER } from './redis.constants.js';
 
 @Global()
 @Module({
@@ -22,9 +21,10 @@ export const REDIS_SUBSCRIBER = 'REDIS_SUBSCRIBER';
       provide: REDIS_SUBSCRIBER,
       useFactory: (redisClient: Redis) => redisClient.duplicate(),
       inject: [REDIS_CLIENT]
-    }
+    },
+    RedisPubSubService
   ],
-  exports: [REDIS_CLIENT, REDIS_SUBSCRIBER],
+  exports: [REDIS_CLIENT, REDIS_SUBSCRIBER, RedisPubSubService],
 })
 export class RedisModule implements OnApplicationShutdown {
   constructor(
@@ -36,3 +36,5 @@ export class RedisModule implements OnApplicationShutdown {
     await Promise.all([this.redis.quit(), this.subscriber.quit()])
   }
 }
+
+export { REDIS_CLIENT, REDIS_SUBSCRIBER };
