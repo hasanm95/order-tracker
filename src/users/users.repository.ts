@@ -5,15 +5,9 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { users } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 
-interface UserRow extends User {
-    passwordHash: string
-}
-
 @Injectable()
 export class UsersRepository {
     constructor(@InjectDrizzle() private readonly db: NodePgDatabase){}
-
-    private readonly rows = new Map<string, UserRow>();
 
     async create(email: string, passwordHash: string): Promise<User> {
         const normalized = email.trim().toLowerCase();

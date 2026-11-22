@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Headers, HttpCode, Inject, Post, UnauthorizedException } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Inject, Post, UnauthorizedException } from "@nestjs/common";
 import { LoginDto, SignUpDto } from "./auth.dto.js";
 import { CredentialsService } from "./credentials.service.js";
-import { CurrentUser, Public, TokenService } from "@nestjs/authentication";
+import { CurrentUser, type JwtClaims, Public, TokenService } from "@nestjs/authentication";
 import type { User } from "../users/user.js";
 import { REDIS_CLIENT } from "../redis/redis.module.js";
 import {Redis} from "ioredis";
@@ -37,44 +37,14 @@ export class AuthController {
         return this.tokenService.issue(user.id, { method: "password" })
     }
 
-    @Public()
     @Post("logout")
     @HttpCode(200)
-    async logout(
-        @Headers('authorization') authHeader: string | undefined, 
-        @Body('refreshToken') refreshToken: string)
-    {
-        if (refreshToken) {
-            await this.tokenService.revoke(refreshToken);
-        }
-        if (authHeader?.startsWith('Bearer ')) {
-            const token = authHeader.slice(7);
-            const payloadPart = token.split('.')[1];
-            if (payloadPart) {
-                try {
-                    const payload = JSON.parse(Buffer.from(payloadPart, 'base64url').toString());
-                    if (payload.jti) {
-                        await this.redis.set(`bl:${payload.jti}`, '1', 'EX', 900);
-                    }
-                } catch {}
-            }
+    async logout(@CurrentUser() claims: JwtClaims) {
+        if (claims.jti) {
+            await this.redis.set(`bl:${claims.jti}`, '1', 'EX', 900);
         }
         
         return { message: 'Logged out successfully' };
-    }
-
-    @Post('logout-all')
-    @HttpCode(200)
-    async logoutAll(@CurrentUser() user: User) {
-        await this.tokenService.revokeAll(user.id)
-        return { message: 'Logged out from all devices' };
-    }
-
-    @Public()
-    @Post("refresh")
-    @HttpCode(200)
-    refresh(@Body('refreshToken') refreshToken: string){
-        return this.tokenService.refresh(refreshToken)
     }
 
     @Get("me")
